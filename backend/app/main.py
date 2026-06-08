@@ -27,8 +27,7 @@ from app.models.user import User        # noqa: F401  explicit safety import
 from app.db.session import engine
 
 # ── 4. Routers — last, after models are registered ────────────────────────
-from app.api.v1 import auth, tickets, users
-
+from app.api.v1 import auth, tickets, users, analytics
 
 # ---------------------------------------------------------------------------
 # Logging
@@ -107,6 +106,7 @@ API_V1_PREFIX = "/api/v1"
 app.include_router(auth.router,    prefix=f"{API_V1_PREFIX}/auth",    tags=["Authentication"])
 app.include_router(users.router,   prefix=f"{API_V1_PREFIX}/users",   tags=["Users"])
 app.include_router(tickets.router, prefix=f"{API_V1_PREFIX}/tickets", tags=["Tickets"])
+app.include_router(analytics.router, prefix=f"{API_V1_PREFIX}/analytics", tags=["Analytics"])
 
 from fastapi import Request
 from fastapi.responses import PlainTextResponse
