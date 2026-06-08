@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 from functools import lru_cache
+from pathlib import Path
 from typing import Literal
 
 from pydantic import Field, PostgresDsn, computed_field, model_validator
@@ -15,7 +16,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=Path(__file__).resolve().parents[3] / ".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
@@ -70,11 +71,11 @@ class Settings(BaseSettings):
             return json.loads(value)
         return [origin.strip() for origin in value.split(",") if origin.strip()]
 
-    # ── OpenAI ─────────────────────────────────────────────────────────────
+    # ── Groq ───────────────────────────────────────────────────────────────
 
-    OPENAI_API_KEY: str = Field(...)
-    OPENAI_MODEL: str = Field(default="gpt-4o-mini")
-    OPENAI_MAX_TOKENS: int = Field(default=512, ge=64, le=4096)
+    GROQ_API_KEY: str = Field(...)
+    GROQ_MODEL: str = Field(default="llama-3.3-70b-versatile")
+    GROQ_MAX_TOKENS: int = Field(default=512, ge=64, le=4096)
 
     # ── Computed helpers ───────────────────────────────────────────────────
 

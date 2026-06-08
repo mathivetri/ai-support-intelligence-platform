@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 
 _client = AsyncOpenAI(
-    api_key=settings.OPENAI_API_KEY,
+    api_key=settings.GROQ_API_KEY,
     base_url="https://api.groq.com/openai/v1",
     timeout=30.0,
     max_retries=2,
@@ -135,36 +135,36 @@ async def analyse_ticket(
 
     try:
         response = await _client.chat.completions.create(
-            model=settings.OPENAI_MODEL,
+            model=settings.GROQ_MODEL,
             messages=[
                 {"role": "system", "content": _SYSTEM_PROMPT},
                 {"role": "user",   "content": user_message},
             ],
-            max_tokens=settings.OPENAI_MAX_TOKENS,
+            max_tokens=settings.GROQ_MAX_TOKENS,
             temperature=0.2,        # low temperature = consistent, deterministic output
             response_format={"type": "json_object"},  # JSON mode — always valid JSON
         )
 
         raw = response.choices[0].message.content or ""
-        logger.debug("OpenAI raw response: %s", raw)
+        logger.debug("Groq raw response: %s", raw)
 
         return _parse_ai_response(raw)
 
     except RateLimitError:
         logger.error(
-            "OpenAI rate limit exceeded. Ticket will be saved without AI fields."
+            "Groq rate limit exceeded. Ticket will be saved without AI fields."
         )
         return TicketAIResult()
 
     except APITimeoutError:
         logger.error(
-            "OpenAI request timed out after 30s. Ticket will be saved without AI fields."
+            "Groq request timed out after 30s. Ticket will be saved without AI fields."
         )
         return TicketAIResult()
 
     except APIError as exc:
         logger.error(
-            "OpenAI API error (status=%s): %s. Ticket will be saved without AI fields.",
+            "Groq API error (status=%s): %s. Ticket will be saved without AI fields.",
             getattr(exc, "status_code", "unknown"),
             exc,
         )
