@@ -1,11 +1,15 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ROUTES } from '@/routes/constants'
 import { useTickets } from '@/hooks/useTickets'
 import Loader from '@/components/common/Loader'
 import EmptyState from '@/components/common/EmptyState'
 import StatusBadge from '@/components/tickets/StatusBadge'
 import PriorityBadge from '@/components/tickets/PriorityBadge'
 import SentimentBadge from '@/components/tickets/SentimentBadge'
+<Link to={ROUTES.TICKET_NEW} className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white">
+  New ticket
+</Link>
 
 export default function TicketsPage() {
   const [page, setPage] = useState(1)
