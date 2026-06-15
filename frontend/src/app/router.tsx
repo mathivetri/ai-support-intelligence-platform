@@ -8,6 +8,8 @@ import TicketsPage from '@/pages/tickets/TicketsPage'
 import NotFoundPage from '@/pages/NotFoundPage'
 import { ROUTES } from '@/routes/constants'
 import TicketDetailPage from '@/pages/tickets/TicketDetailPage'
+import CreateTicketPage from '@/pages/tickets/CreateTicketPage'
+
 
 
 export const router = createBrowserRouter([
@@ -21,6 +23,7 @@ export const router = createBrowserRouter([
         children: [
           { path: ROUTES.DASHBOARD, element: <DashboardPage /> },
           { path: ROUTES.TICKETS, element: <TicketsPage /> },
+          { path: ROUTES.TICKET_NEW, element: <CreateTicketPage /> },
           { path: '/tickets/:id', element: <TicketDetailPage /> },
         ],
       },
