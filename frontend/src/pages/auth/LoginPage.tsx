@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useLogin } from '@/hooks/useAuth'
 import { ROUTES } from '@/routes/constants'
 
@@ -54,6 +54,13 @@ export default function LoginPage() {
         >
           {login.isPending ? 'Signing in…' : 'Sign in'}
         </button>
+
+        <p className="text-center text-sm text-gray-500">
+          Don't have an account?{' '}
+          <Link to={ROUTES.REGISTER} className="text-blue-600 hover:underline">
+            Create one
+          </Link>
+        </p>
       </form>
     </div>
   )
