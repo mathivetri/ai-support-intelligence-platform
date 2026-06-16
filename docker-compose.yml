@@ -40,7 +40,10 @@ services:
       ENVIRONMENT: ${ENVIRONMENT:-development}
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:8080}
     ports:
-      - "8000:8000"
+      # Host 8001 -> container 8000. Host :8000 is commonly taken (this dev box
+      # runs a native Postgres there); the container always listens on 8000.
+      # The app is also reachable via the frontend proxy at http://localhost:8080/api.
+      - "8001:8000"
     restart: unless-stopped
 
   frontend:
