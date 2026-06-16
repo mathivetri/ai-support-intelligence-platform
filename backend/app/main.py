@@ -12,7 +12,7 @@ Responsibilities:
 from contextlib import asynccontextmanager
 import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -108,16 +108,20 @@ app.include_router(users.router,   prefix=f"{API_V1_PREFIX}/users",   tags=["Use
 app.include_router(tickets.router, prefix=f"{API_V1_PREFIX}/tickets", tags=["Tickets"])
 app.include_router(analytics.router, prefix=f"{API_V1_PREFIX}/analytics", tags=["Analytics"])
 
-from fastapi import Request
-from fastapi.responses import PlainTextResponse
-import traceback
+# ---------------------------------------------------------------------------
+# Global exception handler — log full detail, return a safe generic message
+# ---------------------------------------------------------------------------
 
 @app.exception_handler(Exception)
-async def debug_exception_handler(request: Request, exc: Exception):
-    return PlainTextResponse(
-        content=traceback.format_exc(),
+async def unhandled_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    # logger.exception() records the full stack trace server-side (logs only).
+    logger.exception("Unhandled error on %s %s", request.method, request.url.path)
+    return JSONResponse(
         status_code=500,
+        content={"detail": "Internal server error."},
     )
+
+
 # ---------------------------------------------------------------------------
 # Health check
 # ---------------------------------------------------------------------------
