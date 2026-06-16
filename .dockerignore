@@ -1,0 +1,30 @@
+# Root build context (used by backend/Dockerfile).
+.git
+.gitignore
+*.md
+
+# Secrets — injected at runtime via compose env, never baked into the image.
+.env
+.env.*
+!.env.example
+
+# Python
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Tests are not needed in the runtime image.
+backend/tests/
+
+# The frontend has its own build context — exclude it from the backend image.
+frontend/
