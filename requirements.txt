@@ -22,3 +22,11 @@ bcrypt==4.0.1                   # pinned explicitly (passlib 1.7.4 + bcrypt 5.x 
 
 # ── AI provider (Groq via OpenAI-compatible client) ────────────
 openai==2.41.0
+
+# ── Rate limiting ──────────────────────────────────────────────
+slowapi==0.1.9                  # IP-based throttling on auth endpoints
+
+# ── Testing (dev only) ─────────────────────────────────────────
+pytest==8.3.4
+pytest-asyncio==0.25.2
+httpx==0.28.1                   # async test client (also a transitive dep of openai)

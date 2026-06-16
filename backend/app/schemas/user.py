@@ -288,6 +288,27 @@ class TokenResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# RefreshRequest — payload for POST /api/v1/auth/refresh
+# ---------------------------------------------------------------------------
+
+class RefreshRequest(BaseModel):
+    """Payload for POST /api/v1/auth/refresh — exchange a refresh token."""
+
+    refresh_token: str = Field(
+        ...,
+        description="A valid, unexpired refresh token.",
+    )
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            }
+        }
+    )
+
+
+# ---------------------------------------------------------------------------
 # TokenPayload — decoded JWT claims (internal use only)
 # ---------------------------------------------------------------------------
 

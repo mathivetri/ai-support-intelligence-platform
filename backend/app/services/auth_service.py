@@ -32,6 +32,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.security import (
     create_token_pair,
+    decode_refresh_token,
     hash_password,
     verify_password,
 )
@@ -210,6 +211,66 @@ async def login(db: AsyncSession, payload: UserLogin) -> TokenResponse:
     logger.info("User logged in: id=%s username=%s", user.id, user.username)
 
     # ── 4. Issue token pair ────────────────────────────────────────────────
+    token_data = {"sub": str(user.id), "role": user.role}
+    tokens = create_token_pair(token_data)
+
+    return TokenResponse(
+        **tokens,
+        user=UserResponse.model_validate(user),
+    )
+
+
+async def refresh_access_token(db: AsyncSession, refresh_token: str) -> TokenResponse:
+    """
+    Validate a refresh token and issue a fresh token pair (rotation).
+
+    Steps:
+      1. Decode the refresh token — verifies signature, expiry, and that the
+         token type is "refresh" (an access token is rejected here).
+      2. Extract and validate the user UUID from the "sub" claim.
+      3. Confirm the user still exists and is active.
+      4. Issue a brand-new access + refresh token pair.
+
+    Args:
+        db:            Async SQLAlchemy session.
+        refresh_token: The raw refresh token string from the client.
+
+    Returns:
+        TokenResponse with a new access_token, refresh_token, and user profile.
+
+    Raises:
+        HTTP 401 if the token is invalid, expired, the wrong type, or the
+        user no longer exists / is deactivated.
+
+    Security note:
+        This is stateless rotation — there is no server-side revocation yet,
+        so a stolen refresh token remains valid until it expires. Revocation
+        (logout-everywhere via a token denylist) is a separate milestone.
+    """
+    # ── 1. Decode + assert it is a refresh token ───────────────────────────
+    payload = decode_refresh_token(refresh_token)  # raises HTTP 401 on failure
+
+    _invalid_credentials = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    # ── 2. Validate the user UUID ──────────────────────────────────────────
+    try:
+        user_id = uuid.UUID(payload.sub)
+    except (ValueError, AttributeError):
+        logger.warning("Invalid UUID in refresh token sub claim: %s", payload.sub)
+        raise _invalid_credentials
+
+    # ── 3. Confirm the user still exists and is active ─────────────────────
+    user = await _get_user_by_id(db, user_id)
+    if user is None or not user.is_active:
+        logger.warning("Refresh attempt for missing/inactive user: id=%s", user_id)
+        raise _invalid_credentials
+
+    # ── 4. Issue a new token pair ──────────────────────────────────────────
+    logger.info("Tokens refreshed for user: id=%s username=%s", user.id, user.username)
     token_data = {"sub": str(user.id), "role": user.role}
     tokens = create_token_pair(token_data)
 

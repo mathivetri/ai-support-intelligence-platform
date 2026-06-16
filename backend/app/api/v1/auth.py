@@ -11,12 +11,13 @@ from __future__ import annotations
 
 import logging
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.limiter import limiter
 from app.db.session import get_db
-from app.schemas.user import TokenResponse, UserCreate, UserLogin
+from app.schemas.user import RefreshRequest, TokenResponse, UserCreate, UserLogin
 from app.services import auth_service
 
 logger = logging.getLogger(__name__)
@@ -52,7 +53,9 @@ Create a new user account and receive a JWT token pair immediately.
         422: {"description": "Validation error — check request body."},
     },
 )
+@limiter.limit("10/hour")
 async def register(
+    request: Request,
     payload: UserCreate,
     db: AsyncSession = Depends(get_db),
 ) -> TokenResponse:
@@ -88,7 +91,9 @@ Authenticate with an existing account and receive a JWT token pair.
         422: {"description": "Validation error — check request body."},
     },
 )
+@limiter.limit("5/minute")
 async def login(
+    request: Request,
     payload: UserLogin,
     db: AsyncSession = Depends(get_db),
 ) -> TokenResponse:
@@ -115,7 +120,9 @@ This endpoint accepts `application/x-www-form-urlencoded` (not JSON).
 Use `POST /login` for JSON-based API clients.
     """,
 )
+@limiter.limit("5/minute")
 async def login_form(
+    request: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db),
 ) -> TokenResponse:
@@ -126,3 +133,34 @@ async def login_form(
     logger.info("Form login request for email=%s", form_data.username)
     payload = UserLogin(email=form_data.username, password=form_data.password)
     return await auth_service.login(db, payload)
+
+
+# ---------------------------------------------------------------------------
+# POST /refresh  (exchange a refresh token for a new token pair)
+# ---------------------------------------------------------------------------
+
+@router.post(
+    "/refresh",
+    response_model=TokenResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Refresh the access token",
+    description="""
+Exchange a valid **refresh token** for a new token pair.
+
+Send the `refresh_token` you received from `/register` or `/login`.
+Returns a new `access_token` and a new `refresh_token` (rotation).
+
+**On failure:** returns `401 Unauthorized` if the refresh token is missing,
+expired, the wrong type, or the user has been deactivated.
+    """,
+    responses={
+        200: {"description": "New token pair issued."},
+        401: {"description": "Invalid or expired refresh token."},
+    },
+)
+async def refresh(
+    payload: RefreshRequest,
+    db: AsyncSession = Depends(get_db),
+) -> TokenResponse:
+    logger.info("Token refresh request")
+    return await auth_service.refresh_access_token(db, payload.refresh_token)
