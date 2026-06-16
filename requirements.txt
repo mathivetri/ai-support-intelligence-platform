@@ -1,14 +1,23 @@
-fastapi
-uvicorn
-sqlalchemy
-asyncpg
-psycopg2-binary
-python-jose
-passlib[bcrypt]
-python-dotenv
-pydantic-settings
-openai>=1.30.0
-passlib[bcrypt]>=1.7.4
-python-jose[cryptography]>=3.3.0
+# ── Web framework ──────────────────────────────────────────────
+fastapi==0.136.3
+uvicorn==0.48.0
+python-multipart==0.0.30        # required by OAuth2 form login (/auth/login/form)
 
-  
+# ── Database ───────────────────────────────────────────────────
+sqlalchemy==2.0.50
+asyncpg==0.31.0                 # async driver (app runtime)
+psycopg2-binary==2.9.12         # sync driver (for Alembic migrations — milestone 1b)
+
+# ── Validation & settings ──────────────────────────────────────
+pydantic==2.13.4
+pydantic-settings==2.14.1
+email-validator==2.3.0          # required by Pydantic EmailStr
+python-dotenv==1.2.2
+
+# ── Security / auth ────────────────────────────────────────────
+python-jose[cryptography]==3.5.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1                   # pinned explicitly (passlib 1.7.4 + bcrypt 5.x warns)
+
+# ── AI provider (Groq via OpenAI-compatible client) ────────────
+openai==2.41.0
