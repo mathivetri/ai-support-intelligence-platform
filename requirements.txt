@@ -7,6 +7,7 @@ python-multipart==0.0.30        # required by OAuth2 form login (/auth/login/for
 sqlalchemy==2.0.50
 asyncpg==0.31.0                 # async driver (app runtime)
 psycopg2-binary==2.9.12         # sync driver (for Alembic migrations — milestone 1b)
+alembic==1.18.4                 # database migrations
 
 # ── Validation & settings ──────────────────────────────────────
 pydantic==2.13.4

@@ -51,11 +51,8 @@ async def lifespan(app: FastAPI):
     logger.info("Environment : %s", settings.ENVIRONMENT)
     logger.info("Database    : %s", str(settings.DATABASE_URL).split("@")[-1])
 
-    if settings.ENVIRONMENT == "development":
-        async with engine.begin() as conn:
-            await conn.run_sync(Base.metadata.create_all)
-        logger.info("Database tables verified (development mode).")
-        logger.info("Tables registered: %s", list(Base.metadata.tables.keys()))
+    # Database schema is managed by Alembic migrations.
+    # Run `alembic upgrade head` to create/update tables — no auto-create here.
 
     yield
 
