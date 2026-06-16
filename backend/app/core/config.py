@@ -9,7 +9,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, PostgresDsn, computed_field, model_validator
+from pydantic import Field, PostgresDsn, computed_field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -35,6 +35,25 @@ class Settings(BaseSettings):
     # ── Database ───────────────────────────────────────────────────────────
 
     DATABASE_URL: PostgresDsn = Field(...)
+
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def _force_asyncpg_driver(cls, value: object) -> object:
+        """
+        Normalise the database URL to the async driver.
+
+        Managed Postgres hosts (Render, Heroku, etc.) hand out URLs with the
+        `postgres://` or `postgresql://` scheme, but this app talks to the DB
+        asynchronously and requires `postgresql+asyncpg://`. Rewriting here
+        means both the runtime engine and Alembic get the correct driver,
+        regardless of what the host provides.
+        """
+        if isinstance(value, str):
+            if value.startswith("postgres://"):
+                return value.replace("postgres://", "postgresql+asyncpg://", 1)
+            if value.startswith("postgresql://"):
+                return value.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return value
 
     DB_POOL_SIZE: int = Field(default=10, ge=1, le=100)
     DB_MAX_OVERFLOW: int = Field(default=20, ge=0, le=100)

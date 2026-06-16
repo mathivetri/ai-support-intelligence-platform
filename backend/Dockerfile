@@ -27,6 +27,7 @@ USER appuser
 
 EXPOSE 8000
 
-# Apply migrations, then start the API. The DB host is reachable as `db`
-# inside the compose network; depends_on waits for its healthcheck.
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+# Apply migrations, then start the API. Binds to $PORT when the host provides
+# one (e.g. Render), falling back to 8000 for local compose. The DB host is
+# reachable as `db` inside the compose network; depends_on waits for its health.
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
