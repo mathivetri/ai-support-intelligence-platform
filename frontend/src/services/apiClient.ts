@@ -7,9 +7,12 @@ import axios, {
 } from 'axios'
 import { ENV } from '@/lib/env'
 
+// No global Content-Type default: Axios then infers it per request —
+// application/json for plain object bodies, and multipart/form-data with the
+// correct boundary for FormData (file uploads). Forcing a default here breaks
+// multipart uploads.
 export const apiClient: AxiosInstance = axios.create({
   baseURL: ENV.API_BASE_URL,             // "/api/v1" — proxied to FastAPI in dev
-  headers: { 'Content-Type': 'application/json' },
   timeout: 15_000,
 })
 
@@ -21,11 +24,6 @@ apiClient.interceptors.request.use(
     const token = useAuthStore.getState().accessToken
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
-    }
-    // For file uploads, let the browser set multipart/form-data with its
-    // boundary — the default application/json header would break parsing.
-    if (config.data instanceof FormData) {
-      delete config.headers['Content-Type']
     }
     return config
   },
