@@ -1,20 +1,34 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useTicket, useDeleteTicket } from '@/hooks/useTickets'
+import { useTicket, useUpdateTicket, useDeleteTicket } from '@/hooks/useTickets'
 import Loader from '@/components/common/Loader'
 import StatusBadge from '@/components/tickets/StatusBadge'
 import PriorityBadge from '@/components/tickets/PriorityBadge'
 import SentimentBadge from '@/components/tickets/SentimentBadge'
 import { ROUTES } from '@/routes/constants'
+import type { TicketStatus } from '@/types/ticket'
+
+const STATUS_OPTIONS: { value: TicketStatus; label: string }[] = [
+  { value: 'open', label: 'Open' },
+  { value: 'in_progress', label: 'In Progress' },
+  { value: 'resolved', label: 'Resolved' },
+  { value: 'closed', label: 'Closed' },
+]
 
 export default function TicketDetailPage() {
   const { id = '' } = useParams()
   const navigate = useNavigate()
   const { data: ticket, isLoading, isError } = useTicket(id)
+  const update = useUpdateTicket()
   const del = useDeleteTicket()
 
   if (isLoading) return <Loader label="Loading ticket…" />
   if (isError || !ticket)
     return <div className="p-8 text-red-600">Ticket not found.</div>
+
+  const handleStatusChange = (status: TicketStatus) => {
+    if (status === ticket.status) return
+    update.mutate({ id, payload: { status } })
+  }
 
   const handleDelete = () => {
     if (!confirm('Delete this ticket?')) return
@@ -41,6 +55,30 @@ export default function TicketDetailPage() {
       </div>
 
       <p className="whitespace-pre-wrap text-gray-700">{ticket.description}</p>
+
+      {/* Status update */}
+      <div className="flex items-center gap-3">
+        <label htmlFor="status" className="text-sm font-medium text-gray-700">
+          Update status:
+        </label>
+        <select
+          id="status"
+          value={ticket.status}
+          onChange={(e) => handleStatusChange(e.target.value as TicketStatus)}
+          disabled={update.isPending}
+          className="rounded border px-3 py-1.5 text-sm disabled:opacity-50"
+        >
+          {STATUS_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+        {update.isPending && <span className="text-sm text-gray-400">Saving…</span>}
+        {update.isError && (
+          <span className="text-sm text-red-600">Update failed. Try again.</span>
+        )}
+      </div>
 
       {/* AI analysis panel */}
       <section className="rounded-lg border bg-gray-50 p-4">
