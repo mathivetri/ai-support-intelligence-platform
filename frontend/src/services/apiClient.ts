@@ -22,6 +22,11 @@ apiClient.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
     }
+    // For file uploads, let the browser set multipart/form-data with its
+    // boundary — the default application/json header would break parsing.
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type']
+    }
     return config
   },
   (error: AxiosError) => Promise.reject(error),
