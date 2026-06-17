@@ -27,6 +27,37 @@ Built with a **FastAPI** async backend, a **React + TypeScript** frontend, **Pos
 
 ---
 
+## 📸 Screenshots
+
+### Analytics dashboard
+Per-user totals plus priority and sentiment breakdowns, rendered with Recharts.
+
+![Dashboard](docs/dashboard.png)
+
+### Ticket list with AI analysis
+Each ticket shows its AI-assigned **priority** and **sentiment** the moment it is created.
+
+![Tickets](docs/tickets.png)
+
+<details>
+<summary>More screenshots — create ticket, login, register</summary>
+
+**Create a ticket**
+
+![New ticket](docs/new-ticket.png)
+
+**Sign in**
+
+![Login](docs/login.png)
+
+**Create an account**
+
+![Register](docs/register.png)
+
+</details>
+
+---
+
 ## 🏗️ Architecture
 
 ```mermaid
