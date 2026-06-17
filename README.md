@@ -4,6 +4,10 @@ A full-stack support-ticket platform that uses an LLM to automatically **summari
 
 Built with a **FastAPI** async backend, a **React + TypeScript** frontend, **PostgreSQL**, and **Groq** (Llama 3.3 70B) for the AI layer. The whole stack runs with a single `docker compose up`.
 
+### 🔗 [**Live Demo →**](https://support-frontend-idbm.onrender.com)
+
+> ⏳ Hosted on Render's free tier — the backend sleeps after ~15 min of inactivity, so the **first request may take ~50 seconds** to wake up. Subsequent requests are fast. Register a new account to try it out.
+
 > **Status:** MVP complete and production-hardened — JWT auth with refresh tokens, rate limiting, database migrations, an automated test suite, and a fully containerized deployment.
 
 ---
