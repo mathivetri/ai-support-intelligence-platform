@@ -34,17 +34,19 @@ Per-user totals plus priority and sentiment breakdowns, rendered with Recharts.
 
 ![Dashboard](docs/dashboard.png)
 
-### Ticket list with AI analysis
-Each ticket shows its AI-assigned **priority** and **sentiment** the moment it is created.
+### Ticket detail
+AI analysis (summary, priority, sentiment), an attached screenshot, and an
+inline status workflow — with edit and delete actions.
 
-![Tickets](docs/tickets.png)
+![Ticket detail](docs/ticket-detail.png)
+
+### Edit a ticket
+Update the complaint text, or replace / remove the screenshot.
+
+![Edit ticket](docs/edit-ticket.png)
 
 <details>
-<summary>More screenshots — create ticket, login, register</summary>
-
-**Create a ticket**
-
-![New ticket](docs/new-ticket.png)
+<summary>More screenshots — sign in, create account</summary>
 
 **Sign in**
 
