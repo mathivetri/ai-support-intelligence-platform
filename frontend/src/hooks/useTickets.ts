@@ -22,7 +22,13 @@ export function useTicket(id: string) {
 export function useCreateTicket() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (payload: TicketCreate) => ticketService.create(payload),
+    mutationFn: ({
+      payload,
+      screenshot,
+    }: {
+      payload: TicketCreate
+      screenshot?: File | null
+    }) => ticketService.create(payload, screenshot),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['tickets'] })
     },

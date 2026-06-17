@@ -96,6 +96,24 @@ class Settings(BaseSettings):
     GROQ_MODEL: str = Field(default="llama-3.3-70b-versatile")
     GROQ_MAX_TOKENS: int = Field(default=512, ge=64, le=4096)
 
+    # ── Cloudinary (optional — ticket screenshot uploads) ──────────────────
+    # If any of these is unset, screenshot upload is silently disabled and
+    # tickets are created without an attachment (graceful degradation).
+
+    CLOUDINARY_CLOUD_NAME: str = Field(default="")
+    CLOUDINARY_API_KEY: str = Field(default="")
+    CLOUDINARY_API_SECRET: str = Field(default="")
+
+    @computed_field  # type: ignore[misc]
+    @property
+    def cloudinary_enabled(self) -> bool:
+        """True only when all three Cloudinary credentials are configured."""
+        return bool(
+            self.CLOUDINARY_CLOUD_NAME
+            and self.CLOUDINARY_API_KEY
+            and self.CLOUDINARY_API_SECRET
+        )
+
     # ── Computed helpers ───────────────────────────────────────────────────
 
     @computed_field  # type: ignore[misc]

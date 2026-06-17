@@ -261,6 +261,11 @@ class TicketResponse(BaseModel):
         description="AI-detected sentiment. None until processed.",
     )
 
+    screenshot_url: Optional[str] = Field(
+        default=None,
+        description="URL of an optional screenshot attached to the ticket.",
+    )
+
     owner_id: uuid.UUID = Field(description="UUID of the user who created this ticket.")
 
     created_at: datetime = Field(description="Ticket creation timestamp (UTC).")

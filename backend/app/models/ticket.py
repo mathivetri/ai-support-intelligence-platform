@@ -140,6 +140,17 @@ class Ticket(TimestampMixin, Base):
         comment="AI-detected sentiment: positive | neutral | negative.",
     )
 
+    # ── Attachment ─────────────────────────────────────────────────────────
+    # Optional screenshot uploaded by the user at creation time. The image is
+    # stored in Cloudinary; only its secure URL is persisted here.
+
+    screenshot_url: Mapped[str | None] = mapped_column(
+        String(500),
+        nullable=True,
+        default=None,
+        comment="URL of an optional screenshot attached to the ticket.",
+    )
+
     # ── Foreign key ────────────────────────────────────────────────────────
 
     owner_id: Mapped[uuid.UUID] = mapped_column(

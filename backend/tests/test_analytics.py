@@ -10,7 +10,7 @@ NEW_TICKET = {
 
 async def test_overview_counts_reflect_created_tickets(client, auth_headers):
     for _ in range(3):
-        await client.post(TICKETS_URL, json=NEW_TICKET, headers=auth_headers)
+        await client.post(TICKETS_URL, data=NEW_TICKET, headers=auth_headers)
 
     resp = await client.get("/api/v1/analytics/overview", headers=auth_headers)
     assert resp.status_code == 200
@@ -22,7 +22,7 @@ async def test_overview_counts_reflect_created_tickets(client, auth_headers):
 
 
 async def test_analytics_scoped_per_user(client, auth_headers):
-    await client.post(TICKETS_URL, json=NEW_TICKET, headers=auth_headers)
+    await client.post(TICKETS_URL, data=NEW_TICKET, headers=auth_headers)
 
     resp = await client.post(
         "/api/v1/auth/register",

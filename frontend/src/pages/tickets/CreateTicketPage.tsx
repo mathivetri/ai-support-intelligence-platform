@@ -7,10 +7,11 @@ export default function CreateTicketPage() {
   const navigate = useNavigate()
   const create = useCreateTicket()
 
-  const handleSubmit = (payload: TicketCreate) => {
-    create.mutate(payload, {
-      onSuccess: (ticket) => navigate(`/tickets/${ticket.id}`),
-    })
+  const handleSubmit = (payload: TicketCreate, screenshot: File | null) => {
+    create.mutate(
+      { payload, screenshot },
+      { onSuccess: (ticket) => navigate(`/tickets/${ticket.id}`) },
+    )
   }
 
   return (

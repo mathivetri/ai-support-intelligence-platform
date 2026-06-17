@@ -23,7 +23,7 @@ from __future__ import annotations
 import logging
 import uuid
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, File, Form, Query, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies import get_current_user
@@ -35,7 +35,7 @@ from app.schemas.ticket import (
     TicketUpdate,
 )
 from app.schemas.user import UserResponse
-from app.services import ticket_service
+from app.services import ticket_service, upload_service
 
 logger = logging.getLogger(__name__)
 
@@ -56,34 +56,52 @@ Submit a new support ticket. The ticket is created immediately with
 status `open` and no AI fields. AI enrichment (summary, sentiment,
 priority) is processed asynchronously after creation.
 
-**Required fields:**
-- `title`: 5–255 characters
-- `description`: 20–5000 characters
+Sent as `multipart/form-data` so an optional screenshot can be attached.
+
+**Fields:**
+- `title`: 5–255 characters (required)
+- `description`: 20–5000 characters (required)
+- `screenshot`: optional image file (PNG/JPEG/WEBP/GIF, max 5 MB)
 
 **Authentication:** Bearer token required.
     """,
     responses={
         201: {"description": "Ticket created successfully."},
         401: {"description": "Not authenticated."},
-        422: {"description": "Validation error — check request body."},
+        413: {"description": "Screenshot too large (max 5 MB)."},
+        415: {"description": "Unsupported screenshot type."},
+        422: {"description": "Validation error — check the submitted fields."},
     },
 )
 async def create_ticket(
-    payload: TicketCreate,
+    title: str = Form(...),
+    description: str = Form(...),
+    screenshot: UploadFile | None = File(default=None),
     db: AsyncSession = Depends(get_db),
     current_user: UserResponse = Depends(get_current_user),
 ) -> TicketResponse:
     """
     Create a new support ticket owned by the authenticated user.
+
+    Accepts multipart form data: the text fields plus an optional screenshot.
+    The screenshot (if any) is uploaded to Cloudinary before the ticket is
+    persisted; only its URL is stored on the ticket.
     """
+    # Re-use the Pydantic schema to validate title/description rules.
+    payload = TicketCreate(title=title, description=description)
+
     logger.info(
-        "Create ticket request: user_id=%s title=%r",
-        current_user.id, payload.title,
+        "Create ticket request: user_id=%s title=%r has_screenshot=%s",
+        current_user.id, payload.title, bool(screenshot and screenshot.filename),
     )
+
+    screenshot_url = await upload_service.upload_ticket_screenshot(screenshot)
+
     return await ticket_service.create_ticket(
         db=db,
         payload=payload,
         owner_id=current_user.id,
+        screenshot_url=screenshot_url,
     )
 
 

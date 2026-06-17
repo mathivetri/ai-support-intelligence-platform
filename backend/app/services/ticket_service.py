@@ -65,6 +65,7 @@ async def create_ticket(
     db: AsyncSession,
     payload: TicketCreate,
     owner_id: uuid.UUID,
+    screenshot_url: str | None = None,
 ) -> TicketResponse:
     """
     Persist a new ticket then enrich it with AI analysis.
@@ -89,6 +90,7 @@ async def create_ticket(
         priority=None,
         ai_summary=None,
         sentiment=None,
+        screenshot_url=screenshot_url,
     )
 
     db.add(ticket)

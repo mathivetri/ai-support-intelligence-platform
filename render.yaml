@@ -46,6 +46,14 @@ services:
         sync: false                  # you paste this at deploy time (secret)
       - key: GROQ_MODEL
         value: llama-3.3-70b-versatile
+      # Cloudinary (optional — ticket screenshots). Safe to leave blank;
+      # the upload feature simply stays disabled until all three are set.
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
 
   # ── Frontend (static site + API proxy) ───────────────────────────────────
   - type: web

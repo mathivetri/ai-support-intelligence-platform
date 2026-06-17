@@ -56,6 +56,22 @@ export default function TicketDetailPage() {
 
       <p className="whitespace-pre-wrap text-gray-700">{ticket.description}</p>
 
+      {/* Screenshot attachment */}
+      {ticket.screenshot_url && (
+        <div>
+          <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500">
+            Screenshot
+          </h2>
+          <a href={ticket.screenshot_url} target="_blank" rel="noopener noreferrer">
+            <img
+              src={ticket.screenshot_url}
+              alt="Ticket screenshot"
+              className="max-h-80 rounded border hover:opacity-90"
+            />
+          </a>
+        </div>
+      )}
+
       {/* Status update */}
       <div className="flex items-center gap-3">
         <label htmlFor="status" className="text-sm font-medium text-gray-700">

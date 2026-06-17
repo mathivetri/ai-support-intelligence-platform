@@ -18,8 +18,18 @@ async function get(id: string): Promise<Ticket> {
   return data
 }
 
-async function create(payload: TicketCreate): Promise<Ticket> {
-  const { data } = await apiClient.post<Ticket>('/tickets/', payload)
+async function create(
+  payload: TicketCreate,
+  screenshot?: File | null,
+): Promise<Ticket> {
+  // The create endpoint accepts multipart/form-data so an optional screenshot
+  // can ride along. Axios sets the multipart boundary automatically for FormData.
+  const form = new FormData()
+  form.append('title', payload.title)
+  form.append('description', payload.description)
+  if (screenshot) form.append('screenshot', screenshot)
+
+  const { data } = await apiClient.post<Ticket>('/tickets/', form)
   return data
 }
 

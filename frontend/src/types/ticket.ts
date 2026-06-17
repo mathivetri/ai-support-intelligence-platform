@@ -13,6 +13,7 @@ export interface Ticket {
   priority: TicketPriority | null
   ai_summary: string | null
   sentiment: TicketSentiment | null
+  screenshot_url: string | null
   owner_id: string
   created_at: string
   updated_at: string

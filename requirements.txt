@@ -23,6 +23,9 @@ bcrypt==4.0.1                   # pinned explicitly (passlib 1.7.4 + bcrypt 5.x 
 # ── AI provider (Groq via OpenAI-compatible client) ────────────
 openai==2.41.0
 
+# ── Image uploads ──────────────────────────────────────────────
+cloudinary==1.41.0              # ticket screenshot storage (CDN-hosted)
+
 # ── Rate limiting ──────────────────────────────────────────────
 slowapi==0.1.9                  # IP-based throttling on auth endpoints
 
