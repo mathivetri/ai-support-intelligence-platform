@@ -47,6 +47,29 @@ export function useUpdateTicket() {
   })
 }
 
+export function useUpdateScreenshot() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, file }: { id: string; file: File }) =>
+      ticketService.updateScreenshot(id, file),
+    onSuccess: (_data, variables) => {
+      qc.invalidateQueries({ queryKey: ['tickets'] })
+      qc.invalidateQueries({ queryKey: ['ticket', variables.id] })
+    },
+  })
+}
+
+export function useRemoveScreenshot() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (id: string) => ticketService.removeScreenshot(id),
+    onSuccess: (_data, id) => {
+      qc.invalidateQueries({ queryKey: ['tickets'] })
+      qc.invalidateQueries({ queryKey: ['ticket', id] })
+    },
+  })
+}
+
 export function useDeleteTicket() {
   const qc = useQueryClient()
   return useMutation({

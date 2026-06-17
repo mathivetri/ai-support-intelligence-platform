@@ -23,7 +23,7 @@ from __future__ import annotations
 import logging
 import uuid
 
-from fastapi import APIRouter, Depends, File, Form, Query, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, Query, UploadFile, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies import get_current_user
@@ -290,4 +290,92 @@ async def delete_ticket(
         db=db,
         ticket_id=ticket_id,
         owner_id=current_user.id,
+    )
+
+
+# ---------------------------------------------------------------------------
+# PUT /tickets/{ticket_id}/screenshot — replace the attachment
+# ---------------------------------------------------------------------------
+
+@router.put(
+    "/{ticket_id}/screenshot",
+    response_model=TicketResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Replace a ticket's screenshot",
+    description="""
+Upload a new screenshot for an existing ticket (multipart/form-data).
+Replaces any existing attachment.
+
+**Authentication:** Bearer token required. Only the owner may update.
+    """,
+    responses={
+        200: {"description": "Screenshot updated."},
+        400: {"description": "Image could not be processed / uploads not configured."},
+        401: {"description": "Not authenticated."},
+        404: {"description": "Ticket not found."},
+        413: {"description": "Screenshot too large (max 5 MB)."},
+        415: {"description": "Unsupported screenshot type."},
+    },
+)
+async def replace_screenshot(
+    ticket_id: uuid.UUID,
+    screenshot: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+    current_user: UserResponse = Depends(get_current_user),
+) -> TicketResponse:
+    """Upload and attach a new screenshot to a ticket owned by the user."""
+    logger.info(
+        "Replace screenshot request: user_id=%s ticket_id=%s",
+        current_user.id, ticket_id,
+    )
+    url = await upload_service.upload_ticket_screenshot(screenshot)
+    if url is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Could not upload the image. Check the file or that uploads are configured.",
+        )
+    return await ticket_service.update_screenshot(
+        db=db,
+        ticket_id=ticket_id,
+        owner_id=current_user.id,
+        screenshot_url=url,
+    )
+
+
+# ---------------------------------------------------------------------------
+# DELETE /tickets/{ticket_id}/screenshot — remove the attachment
+# ---------------------------------------------------------------------------
+
+@router.delete(
+    "/{ticket_id}/screenshot",
+    response_model=TicketResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Remove a ticket's screenshot",
+    description="""
+Detach the screenshot from a ticket (sets it to null). The image itself is
+left in storage; only the link on the ticket is cleared.
+
+**Authentication:** Bearer token required. Only the owner may update.
+    """,
+    responses={
+        200: {"description": "Screenshot removed."},
+        401: {"description": "Not authenticated."},
+        404: {"description": "Ticket not found."},
+    },
+)
+async def remove_screenshot(
+    ticket_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user: UserResponse = Depends(get_current_user),
+) -> TicketResponse:
+    """Clear the screenshot URL on a ticket owned by the user."""
+    logger.info(
+        "Remove screenshot request: user_id=%s ticket_id=%s",
+        current_user.id, ticket_id,
+    )
+    return await ticket_service.update_screenshot(
+        db=db,
+        ticket_id=ticket_id,
+        owner_id=current_user.id,
+        screenshot_url=None,
     )

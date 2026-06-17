@@ -79,6 +79,39 @@ async def test_update_with_no_fields_returns_422(client, auth_headers):
     assert resp.status_code == 422
 
 
+async def test_edit_ticket_text(client, auth_headers):
+    created = await client.post(TICKETS_URL, data=NEW_TICKET, headers=auth_headers)
+    ticket_id = created.json()["id"]
+    resp = await client.patch(
+        f"{TICKETS_URL}{ticket_id}",
+        json={"title": "Updated title", "description": "An updated, longer description here."},
+        headers=auth_headers,
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["title"] == "Updated title"
+    assert body["description"] == "An updated, longer description here."
+
+
+async def test_remove_screenshot(client, auth_headers):
+    created = await client.post(TICKETS_URL, data=NEW_TICKET, headers=auth_headers)
+    ticket_id = created.json()["id"]
+    resp = await client.delete(f"{TICKETS_URL}{ticket_id}/screenshot", headers=auth_headers)
+    assert resp.status_code == 200
+    assert resp.json()["screenshot_url"] is None
+
+
+async def test_replace_screenshot_without_cloudinary_returns_400(client, auth_headers):
+    # Cloudinary is unconfigured in tests, so the upload yields no URL → 400.
+    created = await client.post(TICKETS_URL, data=NEW_TICKET, headers=auth_headers)
+    ticket_id = created.json()["id"]
+    files = {"screenshot": ("shot.png", b"\x89PNG\r\n\x1a\nfakebytes", "image/png")}
+    resp = await client.put(
+        f"{TICKETS_URL}{ticket_id}/screenshot", files=files, headers=auth_headers
+    )
+    assert resp.status_code == 400
+
+
 async def test_delete_ticket(client, auth_headers):
     created = await client.post(TICKETS_URL, data=NEW_TICKET, headers=auth_headers)
     ticket_id = created.json()["id"]

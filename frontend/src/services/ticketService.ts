@@ -38,8 +38,28 @@ async function update(id: string, payload: TicketUpdate): Promise<Ticket> {
   return data
 }
 
+async function updateScreenshot(id: string, screenshot: File): Promise<Ticket> {
+  const form = new FormData()
+  form.append('screenshot', screenshot)
+  const { data } = await apiClient.put<Ticket>(`/tickets/${id}/screenshot`, form)
+  return data
+}
+
+async function removeScreenshot(id: string): Promise<Ticket> {
+  const { data } = await apiClient.delete<Ticket>(`/tickets/${id}/screenshot`)
+  return data
+}
+
 async function remove(id: string): Promise<void> {
   await apiClient.delete(`/tickets/${id}`)
 }
 
-export const ticketService = { list, get, create, update, remove }
+export const ticketService = {
+  list,
+  get,
+  create,
+  update,
+  updateScreenshot,
+  removeScreenshot,
+  remove,
+}

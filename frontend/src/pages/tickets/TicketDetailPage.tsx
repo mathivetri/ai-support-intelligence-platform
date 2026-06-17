@@ -120,6 +120,12 @@ export default function TicketDetailPage() {
 
       <div className="flex gap-3">
         <button
+          onClick={() => navigate(`/tickets/${id}/edit`)}
+          className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white"
+        >
+          Edit
+        </button>
+        <button
           onClick={handleDelete}
           disabled={del.isPending}
           className="rounded bg-red-600 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"

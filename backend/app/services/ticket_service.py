@@ -212,6 +212,31 @@ async def update_ticket(
 
 
 # ---------------------------------------------------------------------------
+# Screenshot — set or clear the attachment URL
+# ---------------------------------------------------------------------------
+
+async def update_screenshot(
+    db: AsyncSession,
+    ticket_id: uuid.UUID,
+    owner_id: uuid.UUID,
+    screenshot_url: str | None,
+) -> TicketResponse:
+    """
+    Set (or clear, when screenshot_url is None) a ticket's screenshot.
+    Owner-scoped: raises HTTP 404 for a missing ticket or wrong owner.
+    """
+    ticket = await _get_ticket_or_404(db, ticket_id, owner_id)
+    ticket.screenshot_url = screenshot_url
+    await db.flush()
+    await db.refresh(ticket)
+    logger.info(
+        "Ticket screenshot %s: id=%s owner_id=%s",
+        "set" if screenshot_url else "cleared", ticket_id, owner_id,
+    )
+    return TicketResponse.model_validate(ticket)
+
+
+# ---------------------------------------------------------------------------
 # Delete
 # ---------------------------------------------------------------------------
 

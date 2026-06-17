@@ -9,6 +9,7 @@ import NotFoundPage from '@/pages/NotFoundPage'
 import { ROUTES } from '@/routes/constants'
 import TicketDetailPage from '@/pages/tickets/TicketDetailPage'
 import CreateTicketPage from '@/pages/tickets/CreateTicketPage'
+import EditTicketPage from '@/pages/tickets/EditTicketPage'
 
 
 
@@ -25,6 +26,7 @@ export const router = createBrowserRouter([
           { path: ROUTES.TICKETS, element: <TicketsPage /> },
           { path: ROUTES.TICKET_NEW, element: <CreateTicketPage /> },
           { path: '/tickets/:id', element: <TicketDetailPage /> },
+          { path: '/tickets/:id/edit', element: <EditTicketPage /> },
         ],
       },
       { path: '*', element: <NotFoundPage /> },
