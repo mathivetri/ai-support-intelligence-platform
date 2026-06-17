@@ -110,7 +110,7 @@ export default function TicketForm({
         disabled={isSubmitting}
         className="rounded bg-blue-600 px-4 py-2 font-medium text-white disabled:opacity-50"
       >
-        {isSubmitting ? 'Creating…' : 'Create ticket'}
+        {isSubmitting ? 'Saving…' : 'Save ticket'}
       </button>
     </form>
   )

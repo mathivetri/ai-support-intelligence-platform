@@ -185,7 +185,7 @@ export default function EditTicketPage() {
             disabled={saving}
             className="rounded bg-blue-600 px-4 py-2 font-medium text-white disabled:opacity-50"
           >
-            {saving ? 'Saving…' : 'Save changes'}
+            {saving ? 'Saving…' : 'Save'}
           </button>
           <button
             type="button"
