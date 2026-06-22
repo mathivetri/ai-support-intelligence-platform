@@ -64,10 +64,10 @@ services:
     staticPublishPath: ./dist
     routes:
       # Proxy API calls to the backend (server-side → no CORS in the browser).
-      # If your backend gets a different URL, update this destination.
+      # This must match the backend service's actual URL.
       - type: rewrite
         source: /api/*
-        destination: https://support-backend.onrender.com/api/*
+        destination: https://support-backend-40sz.onrender.com/api/*
       # SPA fallback — React Router owns client-side routes.
       - type: rewrite
         source: /*
